@@ -9,15 +9,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class Calculation {
 
     public static Object[] calculation(Collection<ServiceReport> reports, int numberOfWeek) {
-        List<LocalDateTime> dates = new java.util.ArrayList<>(Collections.singletonList(LocalDateTime.of(0, 0, 0, 0, 0)));
-        List<LocalDateTime> datesWithWeek = new java.util.ArrayList<>(Collections.singletonList(LocalDateTime.of(0, 0, 0, 0, 0)));
+        List<LocalDateTime> dates = new ArrayList<LocalDateTime>();
+        List<LocalDateTime> datesWithWeek = new ArrayList<LocalDateTime>();
         Object[] workedHours = new Object[7];
 
         // estos objetos guardan la cantidad de horas por categorias

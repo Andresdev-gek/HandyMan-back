@@ -20,7 +20,7 @@ public class HoursService implements HoursServiceUseCase {
     @Override
     public HoursServiceResponse execute(HoursServiceRequest request) {
 
-        Object[] data = repository.calculateHours(TechnicianId.of(request.getTechnicianId().toString()), request.getNumOfWeek());
+        Object[] data = repository.calculateHours(TechnicianId.of(request.getTechnicianId().getValue()), request.getNumOfWeek());
 
         return new HoursServiceResponse(data);
     }
