@@ -8,17 +8,6 @@ import java.util.List;
 public class HourCalculator {
 
 
-    //se saca la diferencia de horas que hay entre la fecha de inicio y de fin de un reporte
-    public static double hoursDifference(LocalDateTime init, LocalDateTime end) {
-        if (init == null || end == null) {
-            return 0.0;
-        } else {
-            int diff = (int) (end.getLong(ChronoField.INSTANT_SECONDS) - init.getLong(ChronoField.INSTANT_SECONDS));
-
-            return diff / 3600;
-        }
-    }
-
 
     //-------------------------------- calculo de tipos de horas  -----------------------------------------------------//
 
@@ -26,20 +15,23 @@ public class HourCalculator {
 
 
     // dominicales normales
+    // dominicales normales
     public static HoursCategory dominicals(LocalDateTime initDateTime, LocalDateTime endDateTime, HoursCategory category) {
-        category.hours += endDateTime.getHour() - initDateTime.getHour();
-        if( endDateTime.getMinute() >= initDateTime.getMinute() ){
-            if( (category.mins + (endDateTime.getMinute()-initDateTime.getMinute())) >= 60 ){
-                category.hours++;
-                category.mins = (category.mins + (endDateTime.getMinute()-initDateTime.getMinute())) - 60;
-            }else
-                category.mins += endDateTime.getMinute()-initDateTime.getMinute();
-        }else {
-            if((category.mins+ (initDateTime.getMinute() +60 -endDateTime.getMinute())) >= 60 ){
-                category.hours++;
-                category.mins = (category.mins + (initDateTime.getMinute() +60 -endDateTime.getMinute())) - 60;
-            }else
-                category.mins += initDateTime.getMinute() +60 -endDateTime.getMinute();
+        if (String.valueOf(initDateTime.getDayOfWeek()).equals("SUNDAY")) {
+            category.hours += endDateTime.getHour() - initDateTime.getHour();
+            if (endDateTime.getMinute() >= initDateTime.getMinute()) {
+                if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
+                    category.hours++;
+                    category.mins = (category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) - 60;
+                } else
+                    category.mins += endDateTime.getMinute() - initDateTime.getMinute();
+            } else {
+                if ((category.mins + (initDateTime.getMinute() + 60 - endDateTime.getMinute())) >= 60) {
+                    category.hours++;
+                    category.mins = (category.mins + (initDateTime.getMinute() + 60 - endDateTime.getMinute())) - 60;
+                } else
+                    category.mins += initDateTime.getMinute() + 60 - endDateTime.getMinute();
+            }
         }
         category.hours = category.hours + (category.mins / 60);
 
@@ -52,15 +44,15 @@ public class HourCalculator {
     //caso cualquier diurno de horas normales y extra //
 
     public static HoursCategory normals(LocalDateTime initDateTime, LocalDateTime endDateTime, HoursCategory category) {
-        category.hours += endDateTime.getHour() - initDateTime.getHour();
-        if (initDateTime.getHour() >= 7 && initDateTime.getHour() < 20 && endDateTime.getHour() < 20) {
+        if(initDateTime.getHour() >= 7 && initDateTime.getHour() < 20 && endDateTime.getHour() < 20 ) {
             category.hours += endDateTime.getHour() - initDateTime.getHour();
             if (endDateTime.getMinute() >= initDateTime.getMinute()) {
                 if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
                     category.hours++;
                     category.mins = (category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) - 60;
-                } else
+                } else {
                     category.mins += endDateTime.getMinute() - initDateTime.getMinute();
+                }
             } else {
                 if ((category.mins + (initDateTime.getMinute() + 60 - endDateTime.getMinute())) >= 60) {
                     category.hours++;
@@ -68,6 +60,7 @@ public class HourCalculator {
                 } else {
                     category.mins += initDateTime.getMinute() + 60 - endDateTime.getMinute();
                 }
+
             }
         }
         category.hours = category.hours + (category.mins / 60);
@@ -81,37 +74,39 @@ public class HourCalculator {
 
     //caso cualquier nocturno de horas normales y extra
     public static HoursCategory nocturnals(LocalDateTime initDateTime, LocalDateTime endDateTime, HoursCategory category) {
-        category.hours += endDateTime.getHour() - initDateTime.getHour();
-        if ((initDateTime.getHour() >= 20 || initDateTime.getHour() < 7) && (endDateTime.getHour() >= 20 || endDateTime.getHour() < 7)) {
-            if (endDateTime.getMinute() >= initDateTime.getMinute()) {
-                category.hours += 24 - initDateTime.getHour() + endDateTime.getHour();
-                if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
-                    category.hours++;
-                    category.mins += (endDateTime.getMinute() - initDateTime.getMinute()) - 60;
-                } else
-                    category.mins += endDateTime.getMinute() - initDateTime.getMinute();
-            } else {
-                category.hours += 24 - initDateTime.getHour() + endDateTime.getHour() - 1;
-                if ((category.mins + (60 - (initDateTime.getMinute() - endDateTime.getMinute()))) >= 60) {
-                    category.hours++;
-                    category.mins += (60 - (initDateTime.getMinute() - endDateTime.getMinute())) - 60;
-                } else
-                    category.mins += 60 - (initDateTime.getMinute() - endDateTime.getMinute());
-            }
-        if (endDateTime.getMinute() >= initDateTime.getMinute()) {
-                category.hours += endDateTime.getHour() - initDateTime.getHour();
-                if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
-                    category.hours++;
-                    category.mins += (endDateTime.getMinute() - initDateTime.getMinute()) - 60;
-                } else
-                    category.mins += endDateTime.getMinute() - initDateTime.getMinute();
-            } else {
-                category.hours += endDateTime.getHour() - initDateTime.getHour() - 1;
-                if ((category.mins + (60 - (initDateTime.getMinute() - endDateTime.getMinute()))) >= 60) {
-                    category.hours++;
-                    category.mins += (60 - (initDateTime.getMinute() - endDateTime.getMinute())) - 60;
+        if((initDateTime.getHour() >= 20 || initDateTime.getHour() < 7) && (endDateTime.getHour() >= 20 || endDateTime.getHour() < 7)) {
+
+            if (initDateTime.getHour() >= 20 && endDateTime.getHour() < 7) {
+                if (endDateTime.getMinute() >= initDateTime.getMinute()) {
+                    category.hours += 24 - initDateTime.getHour() + endDateTime.getHour();
+                    if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
+                        category.hours++;
+                        category.mins += (endDateTime.getMinute() - initDateTime.getMinute()) - 60;
+                    } else
+                        category.mins += endDateTime.getMinute() - initDateTime.getMinute();
                 } else {
-                    category.mins += 60 - (initDateTime.getMinute() - endDateTime.getMinute());
+                    category.hours += 24 - initDateTime.getHour() + endDateTime.getHour() - 1;
+                    if ((category.mins + (60 - (initDateTime.getMinute() - endDateTime.getMinute()))) >= 60) {
+                        category.hours++;
+                        category.mins += (60 - (initDateTime.getMinute() - endDateTime.getMinute())) - 60;
+                    } else
+                        category.mins += 60 - (initDateTime.getMinute() - endDateTime.getMinute());
+                }
+                if (endDateTime.getMinute() >= initDateTime.getMinute()) {
+                    category.hours += endDateTime.getHour() - initDateTime.getHour();
+                    if ((category.mins + (endDateTime.getMinute() - initDateTime.getMinute())) >= 60) {
+                        category.hours++;
+                        category.mins += (endDateTime.getMinute() - initDateTime.getMinute()) - 60;
+                    } else
+                        category.mins += endDateTime.getMinute() - initDateTime.getMinute();
+                } else {
+                    category.hours += endDateTime.getHour() - initDateTime.getHour() - 1;
+                    if ((category.mins + (60 - (initDateTime.getMinute() - endDateTime.getMinute()))) >= 60) {
+                        category.hours++;
+                        category.mins += (60 - (initDateTime.getMinute() - endDateTime.getMinute())) - 60;
+                    } else {
+                        category.mins += 60 - (initDateTime.getMinute() - endDateTime.getMinute());
+                    }
                 }
             }
         }
