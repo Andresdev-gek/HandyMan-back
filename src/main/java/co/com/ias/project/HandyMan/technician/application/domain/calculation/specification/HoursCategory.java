@@ -3,19 +3,19 @@ package co.com.ias.project.HandyMan.technician.application.domain.calculation.sp
 import java.util.Objects;
 
 public class HoursCategory {
-    int hours, mins;
+    Integer hours, mins;
 
 
-    public HoursCategory(int hours, int mins) {
+    public HoursCategory(Integer hours, Integer mins) {
         this.hours = hours;
         this.mins = mins;
     }
 
-    public int getHours() {
+    public Integer getHours() {
         return hours;
     }
 
-    public int getMins() {
+    public Integer getMins() {
         return mins;
     }
 
@@ -25,7 +25,7 @@ public class HoursCategory {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HoursCategory that = (HoursCategory) o;
-        return hours == that.hours && mins == that.mins;
+        return Objects.equals(hours, that.hours) && Objects.equals(mins, that.mins);
     }
 
     @Override

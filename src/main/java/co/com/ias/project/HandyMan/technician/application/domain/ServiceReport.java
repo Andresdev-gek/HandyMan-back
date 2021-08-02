@@ -2,7 +2,7 @@ package co.com.ias.project.HandyMan.technician.application.domain;
 
 import co.com.ias.project.HandyMan.commons.operation.Validate;
 
-import java.sql.Date;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 

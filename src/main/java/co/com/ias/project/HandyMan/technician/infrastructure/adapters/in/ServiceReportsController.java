@@ -46,10 +46,10 @@ public class ServiceReportsController {
         );
     }
 
-    @GetMapping(value = "/calculateHours")
+    @GetMapping(value = "/{technicianId}/{numberOfWeek}")
     public ResponseEntity hoursServiceHandler(
-            @RequestParam  String technicianId,
-            @RequestParam int numberOfWeek
+            @PathVariable String technicianId,
+            @PathVariable int numberOfWeek
     ) {
         TechnicianId valor = TechnicianId.of(technicianId);
 

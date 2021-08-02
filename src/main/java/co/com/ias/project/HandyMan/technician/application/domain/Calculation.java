@@ -16,9 +16,12 @@ import java.util.List;
 public class Calculation {
 
     public static Object[] calculation(Collection<ServiceReport> reports, int numberOfWeek) {
-        List<LocalDateTime> dates = new ArrayList<LocalDateTime>();
-        List<LocalDateTime> datesWithWeek = new ArrayList<LocalDateTime>();
+        List<LocalDateTime> dates = new ArrayList<>();
+        List<LocalDateTime> datesWithWeek = new ArrayList<>();
         Object[] workedHours = new Object[7];
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+        Integer totalHours = 0;
 
         // estos objetos guardan la cantidad de horas por categorias
 
@@ -31,7 +34,6 @@ public class Calculation {
         HoursCategory DOMINICAL = new HoursCategory(0, 0);
         HoursCategory DOMINICAL_EXTRA = new HoursCategory(0, 0);
 
-        int totalHours = NORMAL.getHours() + NOCTURNAL.getHours() + DOMINICAL.getHours() + NORMAL_EXTRA.getHours() + NOCTURNAL_EXTRA.getHours() + DOMINICAL_EXTRA.getHours() + ((NORMAL.getMins() + NOCTURNAL.getMins() + DOMINICAL.getMins() + NORMAL_EXTRA.getMins() + NOCTURNAL_EXTRA.getMins() + DOMINICAL_EXTRA.getMins()) / 60);
 
         // sacamos solo la fecha de inicio y final de cada reporte y las almacenamos en una lista
 
@@ -49,39 +51,68 @@ public class Calculation {
             }
 
         }
+        Object[] datesWithWeekArray = datesWithWeek.toArray();
 
         // iteramos sobre cada una de estas fechas que ya sabemos que coinciden con el numero de semana solicitado
         if (numberOfWeek >= 1 && numberOfWeek <= 53) {
-            for (int i = 1; i < datesWithWeek.size(); i = i + 2) {
-                LocalDateTime initDateTime = LocalDateTime.parse(datesWithWeek.get(i).toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                LocalDateTime endDateTime = LocalDateTime.parse(datesWithWeek.get(i + 1).toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            for (int i = 0; i < datesWithWeekArray.length-1; i = i + 2) {
+                LocalDateTime initDateTime = LocalDateTime.parse(String.valueOf(datesWithWeekArray[i]), format);
+                LocalDateTime endDateTime = LocalDateTime.parse(String.valueOf(datesWithWeekArray[i + 1]), format);
 
                 String dayOfWeek = String.valueOf(initDateTime.getDayOfWeek());
 
-                HourCalculator.dominicalsNormalAndExtra(initDateTime, endDateTime, dayOfWeek, DOMINICAL, DOMINICAL_EXTRA, totalHours);
-                HourCalculator.normalsAndExtraNormals(initDateTime, endDateTime, dayOfWeek, NORMAL, NORMAL_EXTRA, totalHours);
-                HourCalculator.nocturnalAndExtraNocturnal(initDateTime, endDateTime, dayOfWeek, NOCTURNAL, NOCTURNAL_EXTRA, totalHours);
-                HourCalculator.fromDayToNight(initDateTime, endDateTime, dayOfWeek, NORMAL, NOCTURNAL, totalHours);
-                HourCalculator.fromDayToNightExtra(initDateTime, endDateTime, dayOfWeek, NORMAL_EXTRA, NOCTURNAL_EXTRA, totalHours);
-                HourCalculator.fromNightToDay(initDateTime, endDateTime, dayOfWeek, NORMAL, NOCTURNAL, totalHours);
-                HourCalculator.fromNightToDayExtra(initDateTime, endDateTime, dayOfWeek, NORMAL_EXTRA, NOCTURNAL_EXTRA, totalHours);
+                if (totalHours < 48) {
+                    if (dayOfWeek.equals("SUNDAY")) {
+                        HourCalculator.dominicals(initDateTime, endDateTime, DOMINICAL);
+                    } else {
+                        HourCalculator.normals(initDateTime, endDateTime, NORMAL);
+                        HourCalculator.nocturnals(initDateTime, endDateTime, NOCTURNAL);
+
+                        List<HoursCategory> categories = HourCalculator.nightToDay(initDateTime, endDateTime, NORMAL, NOCTURNAL);
+                        NORMAL = categories.get(0);
+                        NOCTURNAL = categories.get(1);
+
+                        List<HoursCategory> categoriesTwo = HourCalculator.dayToNight(initDateTime, endDateTime, NORMAL, NOCTURNAL);
+                        NORMAL = categoriesTwo.get(0);
+                        NOCTURNAL = categoriesTwo.get(1);
+
+                    }
+                } else {
+                    if (dayOfWeek.equals("SUNDAY")) {
+                        HourCalculator.dominicals(initDateTime, endDateTime, DOMINICAL_EXTRA);
+                    } else {
+                        HourCalculator.normals(initDateTime, endDateTime, NORMAL_EXTRA);
+                        HourCalculator.nocturnals(initDateTime, endDateTime, NOCTURNAL_EXTRA);
+
+                        List<HoursCategory> categories = HourCalculator.nightToDay(initDateTime, endDateTime, NORMAL_EXTRA, NOCTURNAL_EXTRA);
+                        NORMAL_EXTRA = categories.get(0);
+                        NOCTURNAL_EXTRA = categories.get(1);
+
+                        List<HoursCategory> categoriesTwo = HourCalculator.dayToNight(initDateTime, endDateTime, NORMAL_EXTRA, NOCTURNAL_EXTRA);
+                        NORMAL_EXTRA = categoriesTwo.get(0);
+                        NOCTURNAL_EXTRA = categoriesTwo.get(1);
+                    }
+                }
+
+                totalHours = NORMAL.getHours() + NORMAL_EXTRA.getHours() + NOCTURNAL.getHours() + NOCTURNAL_EXTRA.getHours() + DOMINICAL.getHours() + DOMINICAL_EXTRA.getHours() + ((NORMAL.getMins() + NORMAL_EXTRA.getMins() + NOCTURNAL.getMins() + NOCTURNAL_EXTRA.getMins() + DOMINICAL.getMins() + DOMINICAL_EXTRA.getMins()) / 60);
 
 
-            }
+            } //fin del bucle
+
         }
+
 
         workedHours[0] = NORMAL.getMins() < 10 ? NORMAL.getHours() + ":0" + NORMAL.getMins() : NORMAL.getHours() + ":" + NORMAL.getMins();
         workedHours[1] = NOCTURNAL.getMins() < 10 ? NOCTURNAL.getHours() + ":0" + NOCTURNAL.getMins() : NOCTURNAL.getHours() + ":" + NOCTURNAL.getMins();
         workedHours[2] = DOMINICAL.getMins() < 10 ? DOMINICAL.getHours() + ":0" + DOMINICAL.getMins() : DOMINICAL.getHours() + ":" + DOMINICAL.getMins();
-        workedHours[3] = NOCTURNAL_EXTRA.getMins() < 10 ? NORMAL_EXTRA.getHours() + ":0" + NORMAL_EXTRA.getMins() : NORMAL_EXTRA.getHours() + ":" + NORMAL_EXTRA.getMins();
+        workedHours[3] = NORMAL_EXTRA.getMins() < 10 ? NORMAL_EXTRA.getHours() + ":0" + NORMAL_EXTRA.getMins() : NORMAL_EXTRA.getHours() + ":" + NORMAL_EXTRA.getMins();
         workedHours[4] = NOCTURNAL_EXTRA.getMins() < 10 ? NOCTURNAL_EXTRA.getHours() + ":0" + NOCTURNAL_EXTRA.getMins() : NOCTURNAL_EXTRA.getHours() + ":" + NOCTURNAL_EXTRA.getMins();
         workedHours[5] = DOMINICAL_EXTRA.getMins() < 10 ? DOMINICAL_EXTRA.getHours() + ":0" + DOMINICAL_EXTRA.getMins() : DOMINICAL_EXTRA.getHours() + ":" + DOMINICAL_EXTRA.getMins();
-        workedHours[6] = " total horas trabajadas: " + totalHours;
+        workedHours[6] = "" + totalHours;
 
 
         return workedHours;
     }
-
 
 }
 
