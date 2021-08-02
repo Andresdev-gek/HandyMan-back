@@ -11,6 +11,6 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedOrigins("https://handy-man-front.vercel.app/");
+                .allowedOrigins("handy-man.vercel.app/");
     }
 }
