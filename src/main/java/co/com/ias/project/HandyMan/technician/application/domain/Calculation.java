@@ -51,13 +51,13 @@ public class Calculation {
             }
 
         }
-        Object[] datesWithWeekArray = datesWithWeek.toArray();
+
 
         // iteramos sobre cada una de estas fechas que ya sabemos que coinciden con el numero de semana solicitado
         if (numberOfWeek >= 1 && numberOfWeek <= 53) {
-            for (int i = 0; i < datesWithWeekArray.length-1; i = i + 2) {
-                LocalDateTime initDateTime = LocalDateTime.parse(String.valueOf(datesWithWeekArray[i]), format);
-                LocalDateTime endDateTime = LocalDateTime.parse(String.valueOf(datesWithWeekArray[i + 1]), format);
+            for (int i = 0; i < datesWithWeek.size()-1; i = i + 2) {
+                LocalDateTime initDateTime = LocalDateTime.parse(String.valueOf(datesWithWeek.get(i)), format);
+                LocalDateTime endDateTime = LocalDateTime.parse(String.valueOf(datesWithWeek.get(i+1)), format);
 
                 String dayOfWeek = String.valueOf(initDateTime.getDayOfWeek());
 
