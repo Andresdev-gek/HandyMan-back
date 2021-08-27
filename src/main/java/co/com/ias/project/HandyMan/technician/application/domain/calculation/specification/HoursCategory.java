@@ -1,5 +1,5 @@
 package co.com.ias.project.HandyMan.technician.application.domain.calculation.specification;
-
+//coment
 import java.util.Objects;
 
 public class HoursCategory {
